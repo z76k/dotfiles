@@ -1,13 +1,16 @@
+# --- Theme ---
 theme = "Gruvbox Dark"
 font-family = Maple Mono NF
 font-size = 16
 background-opacity = 0.5
 background-blur = true
 
+# --- Window ---
 window-decoration = auto
 window-padding-x = 12
 window-padding-y = 8
 window-save-state = always
+# --- Misc ---
 macos-icon = retro
 macos-option-as-alt = true
 macos-titlebar-style = hidden
@@ -20,9 +23,11 @@ mouse-hide-while-typing = true
 cursor-click-to-move = true
 shell-integration-features = no-cursor
 
+# --- Shaders ---
 custom-shader = ./shaders/cursor_lightning.glsl
 custom-shader-animation = always
 
+# --- Keybinds ---
 keybind = global:cmd+shift+k=toggle_quick_terminal
 quick-terminal-position = top
 keybind = cmd+k=clear_screen

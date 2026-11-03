@@ -7,3 +7,10 @@
 !/fastfetch/
 !/fd/
 !/superfile/
+*.log
+*.bak
+superfile/firstUseCheck
+superfile/lastCheckVersion
+superfile/themeFileVersion
+superfile/toggleDotFile
+superfile/toggleFooter
