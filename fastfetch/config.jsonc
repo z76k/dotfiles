@@ -1,0 +1,65 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "macos3", // full-size Apple logo
+    "padding": {
+      "top": 1,
+      "left": 2,
+      "right": 4
+    }
+  },
+  "display": {
+    "separator": "  ",
+    "key": {
+      "width": 13
+    },
+    "color": {
+      "keys": "38;2;0;168;150", // teal  #00a896
+      "title": "38;2;255;123;0" // orange #ff7b00
+    }
+  },
+  "modules": [
+    // ---- System ----
+    {
+      "type": "os",
+      "key": "\uf179 System",
+      "keyColor": "38;2;255;123;0"
+    },
+    {
+      "type": "shell",
+      "key": "├ \uf489 shell"
+    },
+    {
+      "type": "terminal",
+      "key": "├ \ue795 term"
+    },
+    {
+      "type": "uptime",
+      "key": "└ \uf017 up"
+    },
+    "break",
+    // ---- Hardware ----
+    {
+      "type": "host",
+      "key": "\uf109 Mac",
+      "keyColor": "38;2;255;123;0"
+    },
+    {
+      "type": "cpu",
+      "key": "├ \uf108 cpu"
+    },
+    {
+      "type": "memory",
+      "key": "├ \uf080 ram"
+    },
+    {
+      "type": "disk",
+      "key": "├ \uf0a0 disk",
+      "folders": "/"
+    },
+    {
+      "type": "battery",
+      "key": "└ \uf240 battery"
+    }
+  ]
+}

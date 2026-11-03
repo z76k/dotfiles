@@ -1,0 +1,8 @@
+/nix/
+/System/
+/Library/
+/private/
+/usr/
+/Users/zihaan/Library/*
+/Users/zihaan/!/Library/CloudStorage/
+/Users/zihaan/**/*.photoslibrary/

@@ -1,0 +1,30 @@
+theme = Gruvbox Dark
+font-family = JetBrains Mono
+font-size = 16
+background-opacity = 0.5
+background-blur = macos-glass-regular
+
+window-decoration = auto
+window-padding-x = 12
+window-padding-y = 8
+window-save-state = always
+macos-icon = paper
+macos-option-as-alt = true
+
+# --- Cursor ---
+cursor-style = block
+cursor-style-blink = false
+cursor-text = cell-background
+mouse-hide-while-typing = true
+cursor-click-to-move = true
+shell-integration-features = no-cursor
+
+custom-shader = ./shaders/cursor_lightning.glsl
+custom-shader-animation = always
+
+keybind = global:cmd+shift+k=toggle_quick_terminal
+quick-terminal-position = top
+keybind = cmd+k=clear_screen
+keybind = cmd+shift+r=reload_config
+
+notify-on-command-finish = unfocused

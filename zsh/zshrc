@@ -1,0 +1,176 @@
+# ---- TERM safety net ----
+# If the terminal advertises a TERM with no installed terminfo entry
+# (e.g. Ghostty's xterm-ghostty), fall back so ZLE redraws correctly.
+if ! infocmp "$TERM" >/dev/null 2>&1; then
+  export TERM=xterm-256color
+fi
+
+
+# ---- Completion (fpath must be set BEFORE compinit) ----
+fpath+=("/opt/homebrew/share/zsh/site-functions")
+autoload -Uz compinit
+compinit
+set -o vi
+# ---- PATH ----
+typeset -U path                 # drop duplicate PATH entries
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$PATH:$HOME/.lmstudio/bin"          # LM Studio CLI
+# ---- Startup banner (Ghostty only) ----
+if [[ -o interactive && $TERM_PROGRAM == ghostty ]] && (( $+commands[fastfetch] )); then
+  fastfetch
+fi
+
+
+# ---- History ----
+HISTSIZE=50000
+SAVEHIST=50000
+HISTFILE=~/.zsh_history
+setopt SHARE_HISTORY            # sync across open shells
+setopt HIST_IGNORE_ALL_DUPS     # drop older duplicates
+setopt HIST_IGNORE_SPACE        # ignore cmds starting with a space
+setopt HIST_REDUCE_BLANKS       # trim surplus whitespace
+setopt EXTENDED_HISTORY         # record timestamps
+
+# ---- Editor ----
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# ---- Homebrew ----
+export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications/apps"
+
+# ---- Modern CLI aliases (skip silently if the tool isn't installed) ----
+if command -v eza >/dev/null; then
+  alias ls='eza -1 --group-directories-first --icons'
+  alias ll='eza -lah --git --group-directories-first'
+  alias lt='eza --tree --level=2'
+fi
+command -v bat >/dev/null && alias cat='bat --paging=never'
+
+alias markedit='open -a Markedit.app'
+alias yz='yazi'
+alias ge='ghostty +edit-config'
+alias nv='nvim'
+alias nvz='nvim ~/.zshrc'
+alias fdt-'fd -e dmg . ~/Downloads -X trash'
+alias sortdl='fd -e pdf  -E PDF      . ~/Downloads -x mv -n {} ~/Downloads/PDF/
+fd -e pptx -E PPTX     . ~/Downloads -x mv -n {} ~/Downloads/PPTX/
+fd -e docx -E DOCX     . ~/Downloads -x mv -n {} ~/Downloads/DOCX/
+fd -e epub -E EPUBs     . ~/Downloads -x mv -n {} ~/Downloads/EPUBs/
+fd -e png -e jpg -e jpeg -e heic -E Images . ~/Downloads -x mv -n {} ~/Downloads/Images/
+fd -e dmg  -E Archives . ~/Downloads -x mv -n {} ~/Downloads/Archives/DMG/
+fd -e zip  -E Archives . ~/Downloads -x mv -n {} ~/Downloads/Archives/ZIPS/'
+# ---- FZF (single init; requires fzf >= 0.48) ----
+if command -v fzf >/dev/null; then
+  eval "$(fzf --zsh)"
+  if command -v fd >/dev/null; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+  fi
+  export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :200 {}'"
+  export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {}'"
+  alias prev='fzf --preview="bat --color=always {}"'
+fi
+
+# Fuzzy-find a file and open it in your editor (optional search term: fe foo)
+fe() {
+  local file
+  file=$(fzf --query="$1" --preview 'bat --color=always --line-range :200 {} 2>/dev/null || cat {}') \
+    && ${EDITOR:-nvim} "$file"
+}
+
+# Pick a Homebrew formula to uninstall
+buf() {
+  local pkg
+  pkg=$(brew leaves | fzf) && brew uninstall "$pkg"
+}
+
+# Pick a Homebrew app (cask) to uninstall, including its leftover files
+buzf() {
+  local pkg
+  pkg=$(brew list --cask | fzf) && brew uninstall --zap "$pkg"
+}
+
+# Fuzzy-find a file in your home folder and open it
+fo() {
+  local file
+  file=$(fd . ~ --type f --exclude Library --exclude node_modules | fzf) && open "$file"
+}
+
+# Reveal a file in Finder instead of opening it
+ff() {
+  local file
+  file=$(fd . ~ --exclude Library --exclude node_modules | fzf) && open -R "$file"
+}
+
+# Pick a running app and quit it
+fquit() {
+  local app
+  app=$(osascript -e 'tell app "System Events" to get name of every process whose background only is false' |
+    tr ',' '\n' | sed 's/^ //' | fzf) && osascript -e "quit app \"$app\""
+}
+
+# ---- Handy functions ----
+mkcd() { mkdir -p "$1" && cd "$1"; }
+fcd()  { cd "$(fd --type d --hidden --exclude .git . ~ | fzf)"; }
+
+# ---- Optional tools (only load if installed) ----
+command -v atuin  >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"  # Ctrl-R history search
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"                    # per-project env vars
+
+# ---- Pure Prompt (install with: brew install pure) ----
+zmodload zsh/nearcolor         # enable hex colors on 256-color terminals
+
+# Color scheme: Teal (#00a896) & Orange (#ff7b00)
+zstyle ':prompt:pure:path' color '#00a896'
+zstyle ':prompt:pure:prompt:success' color '#ff7b00'
+zstyle ':prompt:pure:prompt:error' color red
+zstyle ':prompt:pure:git:branch' color '#00a896'
+zstyle ':prompt:pure:git:dirty' color '#ff7b00'
+zstyle ':prompt:pure:git:arrow' color '#ff7b00'
+zstyle ':prompt:pure:execution_time' color '#ff7b00'
+
+# Disable unneeded features
+zstyle ':prompt:pure:environment:virtualenv' show no
+zstyle ':prompt:pure:environment:nix-shell' show no
+
+autoload -U promptinit; promptinit
+if (( ${prompt_themes[(I)pure]} )); then
+  prompt pure
+else
+  print -P "%F{yellow}pure prompt not installed — run: brew install pure%f"
+fi
+
+export GLAZE_SDK_PATH="$HOME/Library/Application Support/app.glaze.macos.main/sdk/current"
+
+# ---- Zoxide (smarter cd; recommended near the end) ----
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+
+# ---- zsh-autosuggestions ----
+# Right arrow accepts the whole suggestion; Shift+Tab accepts one word.
+if [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS+=(forward-word)
+
+  # Tab: accept the grey suggestion if one is showing, otherwise normal completion
+  _tab_accept_or_complete() {
+    if [[ -n $POSTDISPLAY ]]; then
+      zle autosuggest-accept
+    else
+      zle expand-or-complete
+    fi
+  }
+  zle -N _tab_accept_or_complete
+  bindkey '^I' _tab_accept_or_complete   # Tab
+  bindkey '^[[Z' forward-word            # Shift+Tab
+fi
+
+# ---- zsh-syntax-highlighting (must stay LAST) ----
+if [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+export HOMEBREW_NO_ASK=1
+
