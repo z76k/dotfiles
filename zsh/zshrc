@@ -53,7 +53,7 @@ alias markedit='open -a Markedit.app'
 alias yz='yazi'
 alias ge='ghostty +edit-config'
 alias nv='nvim'
-alias nvz='nvim ~/.zshrc'
+alias nvz='nvim ~/.config/zsh/zshrc'
 alias fdt-'fd -e dmg . ~/Downloads -X trash'
 alias sortdl='fd -e pdf  -E PDF      . ~/Downloads -x mv -n {} ~/Downloads/PDF/
 fd -e pptx -E PPTX     . ~/Downloads -x mv -n {} ~/Downloads/PPTX/
@@ -62,6 +62,8 @@ fd -e epub -E EPUBs     . ~/Downloads -x mv -n {} ~/Downloads/EPUBs/
 fd -e png -e jpg -e jpeg -e heic -E Images . ~/Downloads -x mv -n {} ~/Downloads/Images/
 fd -e dmg  -E Archives . ~/Downloads -x mv -n {} ~/Downloads/Archives/DMG/
 fd -e zip  -E Archives . ~/Downloads -x mv -n {} ~/Downloads/Archives/ZIPS/'
+
+alias csync='git -C ~/.config add -A && git -C ~/.config commit -m "Update config" && git -C ~/.config push'
 # ---- FZF (single init; requires fzf >= 0.48) ----
 if command -v fzf >/dev/null; then
   eval "$(fzf --zsh)"
