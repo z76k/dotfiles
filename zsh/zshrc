@@ -119,6 +119,55 @@ fquit() {
 mkcd() { mkdir -p "$1" && cd "$1"; }
 fcd()  { cd "$(fd --type d --hidden --exclude .git . ~ | fzf)"; }
 
+
+appget() {
+  emulate -L zsh
+  local url="$1" dest="$HOME/Applications"
+  [[ -z "$url" ]] && { echo "usage: appget <url>"; return 1; }
+
+  local tmp; tmp=$(mktemp -d) || return 1
+  local file="$tmp/download" src="$tmp/src" mounted=0
+  mkdir -p "$src" "$dest"
+
+  {
+    echo "↓ Downloading…"
+    curl -fL --progress-bar -o "$file" "$url" || { echo "download failed"; return 1; }
+
+    # Detect type from file contents, not the URL
+    local kind
+    case "$(file -b "$file")" in
+      Zip*) kind=zip ;;
+      xar*) kind=pkg ;;
+      *)    kind=dmg ;;
+    esac
+
+    case $kind in
+      dmg)
+        yes | hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$src" "$file" >/dev/null \
+          || { echo "couldn't open download (not a dmg, zip, or pkg?)"; return 1; }
+        mounted=1 ;;
+      zip)
+        ditto -x -k "$file" "$src" || { echo "unzip failed"; return 1; } ;;
+      pkg)
+        sudo installer -pkg "$file" -target /
+        return $? ;;
+    esac
+
+    local -a apps
+    apps=( ${(f)"$(find "$src" -maxdepth 2 -name '*.app' -not -path '*/__MACOSX/*')"} )
+    (( ${#apps} )) || { echo "no .app found"; return 1; }
+    (( ${#apps} > 1 )) && echo "note: found ${#apps} apps, installing ${apps[1]:t} (others: ${${apps[2,-1]:t}})"
+
+    local name=${apps[1]:t}
+    ditto "${apps[1]}" "$dest/.$name.partial" || { echo "copy failed"; rm -rf "$dest/.$name.partial"; return 1; }
+    rm -rf "$dest/$name"
+    mv "$dest/.$name.partial" "$dest/$name" && echo "✓ Installed $name → $dest"
+  } always {
+    (( mounted )) && hdiutil detach "$src" -force -quiet
+    rm -rf "$tmp"
+  }
+}
+
 # ---- Optional tools (only load if installed) ----
 command -v atuin  >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"  # Ctrl-R history search
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"                    # per-project env vars
@@ -147,6 +196,8 @@ else
 fi
 
 export GLAZE_SDK_PATH="$HOME/Library/Application Support/app.glaze.macos.main/sdk/current"
+export PATH="$HOME/bin:$PATH"
+
 
 # ---- Zoxide (smarter cd; recommended near the end) ----
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
