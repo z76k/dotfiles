@@ -3,7 +3,7 @@ local terminal = "com.superlogical.terminal"
 -- Single source of truth: picker, actions, bindings and commands.
 local tools = {
   { id = "fe", key = "e", title = "Edit a File",
-    subtitle = "Fuzzy search with bat preview → Neovim",
+    subtitle = "Fuzzy search with bat preview → Vim",
     icon = "code", detail = "Ctrl+B F E",
     desc = "Fuzzy-find a file and open it in Neovim." },
   { id = "zi", key = "z", title = "Jump to a Directory",
