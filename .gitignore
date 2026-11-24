@@ -14,3 +14,7 @@ superfile/lastCheckVersion
 superfile/themeFileVersion
 superfile/toggleDotFile
 superfile/toggleFooter
+
+!/vim/
+!/rex/
+*.bak.*

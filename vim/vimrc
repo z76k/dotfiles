@@ -1,0 +1,80 @@
+" ============ General ============
+set hidden                    " Switch buffers without saving first
+set mouse=a
+set clipboard=unnamed         " System clipboard (needs +clipboard)
+set wildmenu
+set wildoptions=fuzzy,pum
+set backspace=indent,eol,start
+let mapleader = ' '
+
+" ============ Syntax and filetypes ============
+syntax on
+filetype plugin indent on
+set synmaxcol=200             " Stop highlighting past column 200
+
+" ============ Indentation ============
+set autoindent
+set shiftwidth=2 tabstop=2 softtabstop=2 expandtab
+
+" ============ Search ============
+set incsearch
+set ignorecase smartcase
+
+" ============ Interface ============
+set showmode showcmd
+set laststatus=1              " Statusline only with 2+ windows
+set cursorline
+set scrolloff=8
+set splitright splitbelow
+set display=lastline
+set list                      " Show tabs and odd spaces
+if has('multi_byte') && &encoding ==# 'utf-8'
+  let &listchars = 'tab:▸ ,extends:❯,precedes:❮,nbsp:±'
+else
+  let &listchars = 'tab:> ,extends:>,precedes:<,nbsp:.'
+endif
+
+" ============ Colors ============
+set termguicolors
+set background=dark
+colorscheme gruvbox
+
+" ============ Backup, swap and undo files ============
+set backup
+set backupdir=$HOME/.vim/files/backup/
+set backupext=-vimbackup
+set backupskip=
+set directory=$HOME/.vim/files/swap//
+set updatecount=100
+set undofile
+set undodir=$HOME/.vim/files/undo/
+set viminfo='100,n$HOME/.vim/files/info/viminfo
+
+" 1. Initialize the dictionary FIRST (fixes E121 error)
+let g:which_key_map = {}
+
+" 2. Map <leader>e to Explorer (netrw / vim-vinegar)
+nnoremap <silent> <leader>e :Explore<CR>
+let g:which_key_map.e = 'explorer'
+
+" 3. Map <leader>u to Undotree
+nnoremap <silent> <leader>u :UndotreeToggle<CR>
+let g:which_key_map.u = 'undotree'
+
+" 4. FZF mappings & which-key labels
+set runtimepath+=/opt/homebrew/opt/fzf
+let g:which_key_map.f = { 'name': '+find' }
+nnoremap <silent> <leader>ff :Files<CR>
+let g:which_key_map.f.f = 'files'
+nnoremap <silent> <leader>fb :Buffers<CR>
+let g:which_key_map.f.b = 'buffers'
+
+" 5. Register the dictionary and trigger vim-which-key
+call which_key#register('<Space>', 'g:which_key_map')
+nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
+vnoremap <silent> <leader> :<c-u>WhichKeyVisual '<Space>'<CR>
+
+" Optional: Adjust how fast the popup appears (in milliseconds)
+set timeoutlen=500
+
+set shortmess+=I
