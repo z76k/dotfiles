@@ -35,15 +35,15 @@ setopt HIST_REDUCE_BLANKS       # trim surplus whitespace
 setopt EXTENDED_HISTORY         # record timestamps
 
 # ---- Editor ----
-export EDITOR="nvim"
-export VISUAL="nvim"
+export EDITOR="vim"
+export VISUAL="vim"
 
 # ---- Homebrew ----
 export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications/apps"
 
 # ---- Modern CLI aliases (skip silently if the tool isn't installed) ----
 if command -v eza >/dev/null; then
-  alias ls='eza -1 --group-directories-first --icons'
+  alias ls='eza -1 --group-directories-first '
   alias ll='eza -lah --git --group-directories-first'
   alias lt='eza --tree --level=2'
 fi
