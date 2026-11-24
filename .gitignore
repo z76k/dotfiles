@@ -18,3 +18,7 @@ superfile/toggleFooter
 !/vim/
 !/rex/
 *.bak.*
+.DS_Store
+/rex/init.lua.*
+/rex/plugins/*
+!/rex/plugins/file-tools/
